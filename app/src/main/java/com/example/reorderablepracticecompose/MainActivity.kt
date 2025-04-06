@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,34 +60,46 @@ class MainActivity : ComponentActivity() {
 fun ReorderableScreen() {
     val view = LocalView.current
 
+    // 年号リスト（正解）
     val years = listOf(
-        476, 1780, 1776, 1789, 1803,
-        1914, 1939, 1947, 1989, 1969
+        476,  // ローマ帝国の滅亡
+        1780, // 産業革命
+        1776, // アメリカ独立戦争
+        1789, // フランス革命
+        1803, // ナポレオン戦争
+        1914, // 第一次世界大戦
+        1939, // 第二次世界大戦
+        1947, // 冷戦
+        1989, // ベルリンの壁崩壊
+        1969  // アポロ11号の月面着陸
     )
 
-    val correctEvents = listOf(
-        "ローマ帝国の滅亡",
-        "産業革命",
-        "アメリカ独立戦争",
-        "フランス革命",
-        "ナポレオン戦争",
-        "第一次世界大戦",
-        "第二次世界大戦",
-        "冷戦",
-        "ベルリンの壁崩壊",
-        "アポロ11号の月面着陸"
-    )
+    // 歴史的事象リスト
+    var events by remember { mutableStateOf(
+        listOf(
+            "ローマ帝国の滅亡",
+            "産業革命",
+            "アメリカ独立戦争",
+            "フランス革命",
+            "ナポレオン戦争",
+            "第一次世界大戦",
+            "第二次世界大戦",
+            "冷戦",
+            "ベルリンの壁崩壊",
+            "アポロ11号の月面着陸"
+        )
+    )}
 
-    var events by remember { mutableStateOf(correctEvents) }
-    var resultMessage by remember { mutableStateOf<String?>(null) }
-    var incorrectAnswers by remember { mutableStateOf(emptyList<Pair<String, String>>()) }
+    // ダイアログの状態を管理
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
 
+    // 並べ替え用の状態
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
         events = events.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
-        ViewCompat.performHapticFeedback(view, HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK)
     }
 
     Box(
@@ -95,6 +108,7 @@ fun ReorderableScreen() {
             .padding(top = 48.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
+            // 年号リスト（固定）
             LazyColumn(
                 modifier = Modifier
                     .weight(0.3f)
@@ -112,13 +126,16 @@ fun ReorderableScreen() {
                     ) {
                         Text(
                             text = "$year",
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }
             }
 
+            // 歴史的事象リスト（ドラッグ＆ドロップ対応）
             LazyColumn(
                 modifier = Modifier
                     .weight(0.7f)
@@ -141,20 +158,7 @@ fun ReorderableScreen() {
                                 Text(event, Modifier.padding(horizontal = 8.dp))
                                 Spacer(modifier = Modifier.weight(1f))
                                 IconButton(
-                                    modifier = Modifier.draggableHandle(
-                                        onDragStarted = {
-                                            ViewCompat.performHapticFeedback(
-                                                view,
-                                                HapticFeedbackConstantsCompat.GESTURE_START
-                                            )
-                                        },
-                                        onDragStopped = {
-                                            ViewCompat.performHapticFeedback(
-                                                view,
-                                                HapticFeedbackConstantsCompat.GESTURE_END
-                                            )
-                                        },
-                                    ),
+                                    modifier = Modifier.draggableHandle(),
                                     onClick = {},
                                 ) {
                                     Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
@@ -166,60 +170,56 @@ fun ReorderableScreen() {
             }
         }
 
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            Button(
-                onClick = {
-                    val incorrect = mutableListOf<Pair<String, String>>()
-                    var correctCount = 0
-
-                    for (i in years.indices) {
-                        if (events[i] == correctEvents[i]) {
-                            correctCount++
-                        } else {
-                            incorrect.add(events[i] to correctEvents[i])
-                        }
-                    }
-
-                    resultMessage = if (correctCount == years.size) {
-                        "全問正解！"
-                    } else {
-                        "${years.size}問中${correctCount}問正解！"
-                    }
-
-                    incorrectAnswers = incorrect
-                },
-                modifier = Modifier.padding(bottom = 48.dp)
-            ) {
-                Text("回答")
-            }
-
-            resultMessage?.let { message ->
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(8.dp)
+        // 「回答Button」を画面の下中央に配置
+        Button(
+            onClick = {
+                // 回答チェック
+                val correctEvents = listOf(
+                    "ローマ帝国の滅亡",
+                    "産業革命",
+                    "アメリカ独立戦争",
+                    "フランス革命",
+                    "ナポレオン戦争",
+                    "第一次世界大戦",
+                    "第二次世界大戦",
+                    "冷戦",
+                    "ベルリンの壁崩壊",
+                    "アポロ11号の月面着陸"
                 )
 
-                incorrectAnswers.forEach { (userAnswer, correctAnswer) ->
-                    Text(
-                        text = "❌ $userAnswer → 正解: $correctAnswer",
-                        color = Color.Red,
-                        modifier = Modifier.padding(4.dp)
-                    )
+                val results = events.zip(correctEvents) { userAnswer, correctAnswer ->
+                    if (userAnswer == correctAnswer) "⭕ $userAnswer" else "❌ $userAnswer (正解: $correctAnswer)"
                 }
 
-                if (incorrectAnswers.isEmpty()) {
-                    correctEvents.forEach { event ->
-                        Text(
-                            text = "⭕️ $event",
-                            color = Color.Green,
-                            modifier = Modifier.padding(4.dp)
-                        )
-                    }
+                val correctCount = results.count { it.startsWith("⭕") }
+
+                dialogMessage = if (correctCount == years.size) {
+                    "全問正解！ 🎉"
+                } else {
+                    "${years.size}問中${correctCount}問正解！\n\n" + results.joinToString("\n")
                 }
-            }
+
+                showDialog = true
+            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 48.dp)
+        ) {
+            Text("回答")
         }
+    }
+
+    // 結果を表示するダイアログ
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("閉じる")
+                }
+            },
+            title = { Text("結果発表") },
+            text = { Text(dialogMessage) }
+        )
     }
 }
