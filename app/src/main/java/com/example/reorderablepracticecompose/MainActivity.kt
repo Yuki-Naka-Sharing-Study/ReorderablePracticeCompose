@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
@@ -57,56 +59,42 @@ class MainActivity : ComponentActivity() {
 fun ReorderableScreen() {
     val view = LocalView.current
 
-    // 年号リスト（歴史的事象に対応した年号を設定）
     val years = listOf(
-        476,  // ローマ帝国の滅亡
-        1780, // 産業革命
-        1776, // アメリカ独立戦争
-        1789, // フランス革命
-        1803, // ナポレオン戦争
-        1914, // 第一次世界大戦
-        1939, // 第二次世界大戦
-        1947, // 冷戦
-        1989, // ベルリンの壁崩壊
-        1969  // アポロ11号の月面着陸
+        476, 1780, 1776, 1789, 1803,
+        1914, 1939, 1947, 1989, 1969
     )
 
-    // 歴史的事象リスト
-    var events by remember { mutableStateOf(
-        listOf(
-            "ローマ帝国の滅亡",
-            "産業革命",
-            "アメリカ独立戦争",
-            "フランス革命",
-            "ナポレオン戦争",
-            "第一次世界大戦",
-            "第二次世界大戦",
-            "冷戦",
-            "ベルリンの壁崩壊",
-            "アポロ11号の月面着陸"
-        )
-    )}
+    val correctEvents = listOf(
+        "ローマ帝国の滅亡",
+        "産業革命",
+        "アメリカ独立戦争",
+        "フランス革命",
+        "ナポレオン戦争",
+        "第一次世界大戦",
+        "第二次世界大戦",
+        "冷戦",
+        "ベルリンの壁崩壊",
+        "アポロ11号の月面着陸"
+    )
 
-    // 並べ替え用の状態（歴史的事象）
+    var events by remember { mutableStateOf(correctEvents) }
+    var resultMessage by remember { mutableStateOf<String?>(null) }
+    var incorrectAnswers by remember { mutableStateOf(emptyList<Pair<String, String>>()) }
+
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
         events = events.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
-
-        ViewCompat.performHapticFeedback(
-            view,
-            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
-        )
+        ViewCompat.performHapticFeedback(view, HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK)
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 48.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 48.dp)
     ) {
-        // 年号リスト（固定）
         Row(modifier = Modifier.fillMaxSize()) {
-            // 年号リスト（固定）
             LazyColumn(
                 modifier = Modifier
                     .weight(0.3f)
@@ -119,21 +107,18 @@ fun ReorderableScreen() {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp), // 高さを指定して一致させる
+                            .height(50.dp),
                         color = MaterialTheme.colorScheme.primary
                     ) {
                         Text(
                             text = "$year",
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
+                            modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }
             }
 
-            // 歴史的事象リスト（ドラッグ＆ドロップ対応）
             LazyColumn(
                 modifier = Modifier
                     .weight(0.7f)
@@ -151,14 +136,10 @@ fun ReorderableScreen() {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp) // 高さを指定して一致させる
+                                    .height(50.dp)
                             ) {
-                                // 歴史的事象を表示
                                 Text(event, Modifier.padding(horizontal = 8.dp))
-
-                                // アイコンを右端に配置
-                                Spacer(modifier = Modifier.weight(1f))  // これでアイコンを右端に配置
-
+                                Spacer(modifier = Modifier.weight(1f))
                                 IconButton(
                                     modifier = Modifier.draggableHandle(
                                         onDragStarted = {
@@ -185,14 +166,60 @@ fun ReorderableScreen() {
             }
         }
 
-        // 「回答Button」を画面の下中央に配置
-        Button(
-            onClick = { /* 回答ボタンがクリックされた時の処理 */ },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp) // 下に少し余白を追加
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Text("回答")
+            Button(
+                onClick = {
+                    val incorrect = mutableListOf<Pair<String, String>>()
+                    var correctCount = 0
+
+                    for (i in years.indices) {
+                        if (events[i] == correctEvents[i]) {
+                            correctCount++
+                        } else {
+                            incorrect.add(events[i] to correctEvents[i])
+                        }
+                    }
+
+                    resultMessage = if (correctCount == years.size) {
+                        "全問正解！"
+                    } else {
+                        "${years.size}問中${correctCount}問正解！"
+                    }
+
+                    incorrectAnswers = incorrect
+                },
+                modifier = Modifier.padding(bottom = 48.dp)
+            ) {
+                Text("回答")
+            }
+
+            resultMessage?.let { message ->
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+
+                incorrectAnswers.forEach { (userAnswer, correctAnswer) ->
+                    Text(
+                        text = "❌ $userAnswer → 正解: $correctAnswer",
+                        color = Color.Red,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
+
+                if (incorrectAnswers.isEmpty()) {
+                    correctEvents.forEach { event ->
+                        Text(
+                            text = "⭕️ $event",
+                            color = Color.Green,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
