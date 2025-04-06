@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -53,7 +54,7 @@ fun ReorderableScreen() {
     val view = LocalView.current
 
     // 年号リスト（歴史的事象に対応した年号を設定）
-    val yearsList = listOf(
+    val years = listOf(
         476,  // ローマ帝国の滅亡
         1780, // 産業革命
         1776, // アメリカ独立戦争
@@ -67,7 +68,7 @@ fun ReorderableScreen() {
     )
 
     // 歴史的事象リスト
-    var eventsList by remember { mutableStateOf(
+    var events by remember { mutableStateOf(
         listOf(
             "ローマ帝国の滅亡",
             "産業革命",
@@ -85,7 +86,7 @@ fun ReorderableScreen() {
     // 並べ替え用の状態（歴史的事象）
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        eventsList = eventsList.toMutableList().apply {
+        events = events.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
 
@@ -105,9 +106,11 @@ fun ReorderableScreen() {
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(yearsList) { year ->
+            items(years) { year ->
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp), // 高さを指定して一致させる
                     color = MaterialTheme.colorScheme.primary
                 ) {
                     Text(
@@ -131,12 +134,16 @@ fun ReorderableScreen() {
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(eventsList, key = { it }) { event ->
+            items(events, key = { it }) { event ->
                 ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
                     val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
                     Surface(shadowElevation = elevation) {
-                        Row {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp) // 高さを指定して一致させる
+                        ) {
                             // 歴史的事象を表示
                             Text(event, Modifier.padding(horizontal = 8.dp))
                             IconButton(
