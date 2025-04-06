@@ -187,7 +187,7 @@ fun ReorderableScreen() {
             onClick = { /* 回答ボタンがクリックされた時の処理 */ },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp) // 下に少し余白を追加
+                .padding(bottom = 48.dp) // 下に少し余白を追加
         ) {
             Text("回答")
         }
