@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
@@ -97,82 +100,96 @@ fun ReorderableScreen() {
         )
     }
 
-    Row(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         // 年号リスト（固定）
-        LazyColumn(
-            modifier = Modifier
-                .weight(0.3f)
-                .fillMaxHeight()
-                .padding(8.dp),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(years) { year ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp), // 高さを指定して一致させる
-                    color = MaterialTheme.colorScheme.primary
-                ) {
-                    Text(
-                        text = "$year",
+        Row(modifier = Modifier.fillMaxSize()) {
+            // 年号リスト（固定）
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.3f)
+                    .fillMaxHeight()
+                    .padding(8.dp),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(years) { year ->
+                    Surface(
                         modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                            .fillMaxWidth()
+                            .height(50.dp), // 高さを指定して一致させる
+                        color = MaterialTheme.colorScheme.primary
+                    ) {
+                        Text(
+                            text = "$year",
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                 }
             }
-        }
 
-        // 歴史的事象リスト（ドラッグ＆ドロップ対応）
-        LazyColumn(
-            modifier = Modifier
-                .weight(0.7f)
-                .fillMaxHeight()
-                .padding(8.dp),
-            state = lazyListState,
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(events, key = { it }) { event ->
-                ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
-                    val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+            // 歴史的事象リスト（ドラッグ＆ドロップ対応）
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.7f)
+                    .fillMaxHeight()
+                    .padding(8.dp),
+                state = lazyListState,
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(events, key = { it }) { event ->
+                    ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
+                        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-                    Surface(shadowElevation = elevation) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp) // 高さを指定して一致させる
-                        ) {
-                            // 歴史的事象を表示
-                            Text(event, Modifier.padding(horizontal = 8.dp))
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            IconButton(
-                                modifier = Modifier.draggableHandle(
-                                    onDragStarted = {
-                                        ViewCompat.performHapticFeedback(
-                                            view,
-                                            HapticFeedbackConstantsCompat.GESTURE_START
-                                        )
-                                    },
-                                    onDragStopped = {
-                                        ViewCompat.performHapticFeedback(
-                                            view,
-                                            HapticFeedbackConstantsCompat.GESTURE_END
-                                        )
-                                    },
-                                ),
-                                onClick = {},
+                        Surface(shadowElevation = elevation) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp) // 高さを指定して一致させる
                             ) {
-                                Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+                                // 歴史的事象を表示
+                                Text(event, Modifier.padding(horizontal = 8.dp))
+
+                                // アイコンを右端に配置
+                                Spacer(modifier = Modifier.weight(1f))  // これでアイコンを右端に配置
+
+                                IconButton(
+                                    modifier = Modifier.draggableHandle(
+                                        onDragStarted = {
+                                            ViewCompat.performHapticFeedback(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_START
+                                            )
+                                        },
+                                        onDragStopped = {
+                                            ViewCompat.performHapticFeedback(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_END
+                                            )
+                                        },
+                                    ),
+                                    onClick = {},
+                                ) {
+                                    Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+
+        // 「回答Button」を画面の下中央に配置
+        Button(
+            onClick = { /* 回答ボタンがクリックされた時の処理 */ },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp) // 下に少し余白を追加
+        ) {
+            Text("回答")
         }
     }
 }
