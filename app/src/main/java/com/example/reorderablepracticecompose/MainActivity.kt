@@ -49,10 +49,25 @@ class MainActivity : ComponentActivity() {
 fun ReorderableScreen() {
     val view = LocalView.current
 
-    var list by remember { mutableStateOf(List(100) { "Item $it" }) }
+    // 歴史的事象リストを作成
+    var historicalEventList by remember { mutableStateOf(
+        listOf(
+            "ローマ帝国の滅亡",
+            "産業革命",
+            "アメリカ独立戦争",
+            "フランス革命",
+            "ナポレオン戦争",
+            "第一次世界大戦",
+            "第二次世界大戦",
+            "冷戦",
+            "ベルリンの壁崩壊",
+            "アポロ11号の月面着陸"
+        )
+    )}
+
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        list = list.toMutableList().apply {
+        historicalEventList = historicalEventList.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
 
@@ -68,13 +83,14 @@ fun ReorderableScreen() {
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(list, key = { it }) {
-            ReorderableItem(reorderableLazyListState, key = it) { isDragging ->
+        items(historicalEventList, key = { it }) { event ->
+            ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
                 val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
                 Surface(shadowElevation = elevation) {
                     Row {
-                        Text(it, Modifier.padding(horizontal = 8.dp))
+                        // 歴史的事象を表示
+                        Text(event, Modifier.padding(horizontal = 8.dp))
                         IconButton(
                             modifier = Modifier.draggableHandle(
                                 onDragStarted = {
