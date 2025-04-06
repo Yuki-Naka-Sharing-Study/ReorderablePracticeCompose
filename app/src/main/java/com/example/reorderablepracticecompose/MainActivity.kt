@@ -8,7 +8,9 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,8 +52,22 @@ class MainActivity : ComponentActivity() {
 fun ReorderableScreen() {
     val view = LocalView.current
 
-    // 歴史的事象リストを作成
-    var historicalEventList by remember { mutableStateOf(
+    // 年号リスト（歴史的事象に対応した年号を設定）
+    val yearsList = listOf(
+        476,  // ローマ帝国の滅亡
+        1780, // 産業革命
+        1776, // アメリカ独立戦争
+        1789, // フランス革命
+        1803, // ナポレオン戦争
+        1914, // 第一次世界大戦
+        1939, // 第二次世界大戦
+        1947, // 冷戦
+        1989, // ベルリンの壁崩壊
+        1969  // アポロ11号の月面着陸
+    )
+
+    // 歴史的事象リスト
+    var eventsList by remember { mutableStateOf(
         listOf(
             "ローマ帝国の滅亡",
             "産業革命",
@@ -65,9 +82,10 @@ fun ReorderableScreen() {
         )
     )}
 
+    // 並べ替え用の状態（歴史的事象）
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        historicalEventList = historicalEventList.toMutableList().apply {
+        eventsList = eventsList.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
 
@@ -77,38 +95,69 @@ fun ReorderableScreen() {
         )
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = lazyListState,
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(historicalEventList, key = { it }) { event ->
-            ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
-                val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+    Row(modifier = Modifier.fillMaxSize()) {
+        // 年号リスト（固定）
+        LazyColumn(
+            modifier = Modifier
+                .weight(0.3f)
+                .fillMaxHeight()
+                .padding(8.dp),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(yearsList) { year ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    Text(
+                        text = "$year",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+        }
 
-                Surface(shadowElevation = elevation) {
-                    Row {
-                        // 歴史的事象を表示
-                        Text(event, Modifier.padding(horizontal = 8.dp))
-                        IconButton(
-                            modifier = Modifier.draggableHandle(
-                                onDragStarted = {
-                                    ViewCompat.performHapticFeedback(
-                                        view,
-                                        HapticFeedbackConstantsCompat.GESTURE_START
-                                    )
-                                },
-                                onDragStopped = {
-                                    ViewCompat.performHapticFeedback(
-                                        view,
-                                        HapticFeedbackConstantsCompat.GESTURE_END
-                                    )
-                                },
-                            ),
-                            onClick = {},
-                        ) {
-                            Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+        // 歴史的事象リスト（ドラッグ＆ドロップ対応）
+        LazyColumn(
+            modifier = Modifier
+                .weight(0.7f)
+                .fillMaxHeight()
+                .padding(8.dp),
+            state = lazyListState,
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(eventsList, key = { it }) { event ->
+                ReorderableItem(reorderableLazyListState, key = event) { isDragging ->
+                    val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+                    Surface(shadowElevation = elevation) {
+                        Row {
+                            // 歴史的事象を表示
+                            Text(event, Modifier.padding(horizontal = 8.dp))
+                            IconButton(
+                                modifier = Modifier.draggableHandle(
+                                    onDragStarted = {
+                                        ViewCompat.performHapticFeedback(
+                                            view,
+                                            HapticFeedbackConstantsCompat.GESTURE_START
+                                        )
+                                    },
+                                    onDragStopped = {
+                                        ViewCompat.performHapticFeedback(
+                                            view,
+                                            HapticFeedbackConstantsCompat.GESTURE_END
+                                        )
+                                    },
+                                ),
+                                onClick = {},
+                            ) {
+                                Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+                            }
                         }
                     }
                 }
