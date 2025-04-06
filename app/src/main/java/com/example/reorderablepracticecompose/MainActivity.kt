@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,10 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.core.view.ViewCompat
 import sh.calvin.reorderable.ReorderableItem
 
 class MainActivity : ComponentActivity() {
@@ -74,7 +70,7 @@ fun ReorderableScreen() {
         1969  // アポロ11号の月面着陸
     )
 
-    // 歴史的事象リスト
+    // **初期化時にシャッフル**
     var events by remember { mutableStateOf(
         listOf(
             "ローマ帝国の滅亡",
@@ -87,7 +83,7 @@ fun ReorderableScreen() {
             "冷戦",
             "ベルリンの壁崩壊",
             "アポロ11号の月面着陸"
-        )
+        ).shuffled()  // 🔥ここでランダム化🔥
     )}
 
     // ダイアログの状態を管理
