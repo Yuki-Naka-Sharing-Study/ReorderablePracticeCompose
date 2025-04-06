@@ -54,7 +54,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ReorderableScreen() {
-    val view = LocalView.current
 
     // 年号リスト（正解）
     val years = listOf(
