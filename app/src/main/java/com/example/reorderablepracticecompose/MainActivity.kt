@@ -100,7 +100,10 @@ fun ReorderableScreen() {
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(top = 48.dp)
+    ) {
         // 年号リスト（固定）
         Row(modifier = Modifier.fillMaxSize()) {
             // 年号リスト（固定）
