@@ -126,7 +126,7 @@ fun ReorderableScreen() {
                     // 年号リスト（固定）
                     LazyColumn(
                         modifier = Modifier
-                            .weight(0.2f)
+                            .weight(0.3f)
                             .fillMaxHeight()
                             .padding(8.dp),
                         contentPadding = PaddingValues(8.dp),
