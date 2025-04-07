@@ -22,11 +22,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -51,8 +54,26 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReorderableScreen() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("年号に歴史的事象を合わせてください。")
+                },
+            )
+        },
+    ) { innerPadding ->
+        ReorderableContentScreen(innerPadding)
+    }
+}
+
+@Composable
+fun ReorderableContentScreen(
+    innerPadding: PaddingValues
+) {
 
     // 年号リスト（正解）
     val years = listOf(
@@ -99,13 +120,13 @@ fun ReorderableScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 48.dp)
+            .padding(top = 76.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             // 年号リスト（固定）
             LazyColumn(
                 modifier = Modifier
-                    .weight(0.3f)
+                    .weight(0.2f)
                     .fillMaxHeight()
                     .padding(8.dp),
                 contentPadding = PaddingValues(8.dp),
@@ -115,13 +136,13 @@ fun ReorderableScreen() {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
+                            .height(36.dp),
                         color = MaterialTheme.colorScheme.primary
                     ) {
                         Text(
                             text = "$year",
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(8.dp)
                                 .fillMaxWidth(),
                             style = MaterialTheme.typography.titleMedium
                         )
@@ -147,7 +168,7 @@ fun ReorderableScreen() {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp)
+                                    .height(36.dp)
                             ) {
                                 Text(event, Modifier.padding(horizontal = 8.dp))
                                 Spacer(modifier = Modifier.weight(1f))
