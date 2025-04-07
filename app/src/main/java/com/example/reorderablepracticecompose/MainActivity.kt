@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -126,7 +128,7 @@ fun ReorderableScreen() {
                     // 年号リスト（固定）
                     LazyColumn(
                         modifier = Modifier
-                            .weight(0.3f)
+                            .weight(0.22f)
                             .fillMaxHeight()
                             .padding(8.dp),
                         contentPadding = PaddingValues(8.dp),
@@ -135,8 +137,7 @@ fun ReorderableScreen() {
                         items(years) { year ->
                             Surface(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(36.dp),
+                                    .wrapContentSize(),
                                 color = MaterialTheme.colorScheme.primary
                             ) {
                                 Text(
